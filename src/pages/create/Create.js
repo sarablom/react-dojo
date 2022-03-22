@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCollection } from "../../hooks/useCollection";
+import { useFirestore } from "../../hooks/useFirestore";
+import { timestamp } from "../../firebase/config";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import Select from "react-select";
 import "./Create.css";
 
@@ -18,19 +22,22 @@ function Create() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [formError, setFormError] = useState(null);
   const [users, setUsers] = useState([]);
+
   const { documents } = useCollection("users");
+  const { user } = useAuthContext();
+  const { addDocument, response } = useFirestore("projects");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (documents) {
-      const options = documents.map(user => {
-        return {value: user, label: user.displayName}
-      })
+      const options = documents.map((user) => {
+        return { value: user, label: user.displayName };
+      });
       setUsers(options);
     }
-  }, [documents])
-  
+  }, [documents]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
 
@@ -44,7 +51,35 @@ function Create() {
       return;
     }
 
-    console.log(name, details, dueDate, category.value, assignedUsers);
+    const createdBy = {
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      id: user.uid,
+    };
+
+    const assignedUsersList = assignedUsers.map((user) => {
+      return {
+        displayName: user.value.displayName,
+        photoURL: user.value.photoURL,
+        id: user.value.id,
+      };
+    });
+
+    const project = {
+      name,
+      details,
+      category: category.value,
+      dueDate: timestamp.fromDate(new Date(dueDate)),
+      comments: [],
+      createdBy,
+      assignedUsersList,
+    };
+
+    //Create a project document
+    await addDocument(project);
+    if (!response.error) {
+      navigate("/");
+    }
   };
 
   return (
