@@ -51,29 +51,28 @@ function Create() {
       return;
     }
 
-    const createdBy = {
-      displayName: user.displayName,
+    const assignedUsersList = assignedUsers.map(u => {
+      return { 
+        displayName: u.value.displayName, 
+        photoURL: u.value.photoURL,
+        id: u.value.id
+      }
+    })
+    const createdBy = { 
+      displayName: user.displayName, 
       photoURL: user.photoURL,
-      id: user.uid,
-    };
-
-    const assignedUsersList = assignedUsers.map((user) => {
-      return {
-        displayName: user.value.displayName,
-        photoURL: user.value.photoURL,
-        id: user.value.id,
-      };
-    });
+      id: user.uid
+    }
 
     const project = {
       name,
       details,
+      assignedUsersList, 
+      createdBy,
       category: category.value,
       dueDate: timestamp.fromDate(new Date(dueDate)),
-      comments: [],
-      createdBy,
-      assignedUsersList,
-    };
+      comments: []
+    }
 
     //Create a project document
     await addDocument(project);
