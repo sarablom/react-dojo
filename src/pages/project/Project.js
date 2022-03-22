@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useDocument } from "../../hooks/useDocument";
 import "./Project.css";
+import ProjectComments from "./ProjectComments";
 import ProjectSummary from "./ProjectSummary";
 
 function Project() {
@@ -20,6 +21,7 @@ function Project() {
   return (
     <div className="project-details">
       <ProjectSummary project={document} />
+      <ProjectComments project={document} />
     </div>
   );
 }
